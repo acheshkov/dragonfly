@@ -616,36 +616,36 @@ int SortedMap::AddElem(double score, std::string_view ele, int in_flags, int* ou
   ScoreSds obj = nullptr;
   bool added = false;
 
-  if (in_flags & ZADD_IN_XX) {
+  if ((static_cast<uint32_t>(in_flags) & static_cast<uint32_t>(ZADD_IN_XX)) != 0) {
     obj = score_map->FindObj(ele);
     if (obj == nullptr) {
       *out_flags = ZADD_OUT_NOP;
       return 1;
     }
   } else {
-    tie(obj, added) = score_map->AddOrSkip(ele, score);
+    std::tie(obj, added) = score_map->AddOrSkip(ele, score);
   }
 
   if (added) {
     // Adding a new element.
-    DCHECK_EQ(in_flags & ZADD_IN_XX, 0);
+    DCHECK_EQ((static_cast<uint32_t>(in_flags) & static_cast<uint32_t>(ZADD_IN_XX)), 0);
 
     *out_flags = ZADD_OUT_ADDED;
     *newscore = score;
-    bool added = score_tree->Insert(obj);
-    DCHECK(added);
+    bool inserted = score_tree->Insert(obj);
+    DCHECK(inserted);
 
     return 1;
   }
 
   // Updating an existing element.
-  if ((in_flags & ZADD_IN_NX)) {
+  if ((static_cast<uint32_t>(in_flags) & static_cast<uint32_t>(ZADD_IN_NX)) != 0) {
     // Updating an existing element.
     *out_flags = ZADD_OUT_NOP;
     return 1;
   }
 
-  if (in_flags & ZADD_IN_INCR) {
+  if ((static_cast<uint32_t>(in_flags) & static_cast<uint32_t>(ZADD_IN_INCR)) != 0) {
     score += GetObjScore(obj);
     if (isnan(score)) {
       *out_flags = ZADD_OUT_NAN;
@@ -661,6 +661,7 @@ int SortedMap::AddElem(double score, std::string_view ele, int in_flags, int* ou
   *newscore = score;
   return 1;
 }
+
 
 optional<double> SortedMap::GetScore(std::string_view ele) const {
   ScoreSds obj = score_map->FindObj(ele);

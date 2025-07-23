@@ -297,24 +297,24 @@ static inline void lpEncodeIntegerGetType(int64_t v, unsigned char *intenc, uint
         if (v < 0) v = ((int64_t)1<<16)+v;
         intenc[0] = LP_ENCODING_16BIT_INT;
         intenc[1] = v&0xff;
-        intenc[2] = v>>8;
+        intenc[2] = (uint64_t)v >> 8;
         *enclen = 3;
     } else if (v >= -8388608 && v <= 8388607) {
         /* 24 bit integer. */
         if (v < 0) v = ((int64_t)1<<24)+v;
         intenc[0] = LP_ENCODING_24BIT_INT;
         intenc[1] = v&0xff;
-        intenc[2] = (v>>8)&0xff;
-        intenc[3] = v>>16;
+        intenc[2] = (uint64_t)v >> 8;
+        intenc[3] = (uint64_t)v >> 16;
         *enclen = 4;
-    } else if (v >= -2147483648 && v <= 2147483647) {
+    } else if (v >= -2147483648LL && v <= 2147483647LL) {
         /* 32 bit integer. */
         if (v < 0) v = ((int64_t)1<<32)+v;
         intenc[0] = LP_ENCODING_32BIT_INT;
         intenc[1] = v&0xff;
-        intenc[2] = (v>>8)&0xff;
-        intenc[3] = (v>>16)&0xff;
-        intenc[4] = v>>24;
+        intenc[2] = (uint64_t)v >> 8;
+        intenc[3] = (uint64_t)v >> 16;
+        intenc[4] = (uint64_t)v >> 24;
         *enclen = 5;
     } else {
         /* 64 bit integer. */
@@ -331,6 +331,7 @@ static inline void lpEncodeIntegerGetType(int64_t v, unsigned char *intenc, uint
         *enclen = 9;
     }
 }
+
 
 /* Given an element 'ele' of size 'size', determine if the element can be
  * represented inside the listpack encoded as integer, and returns

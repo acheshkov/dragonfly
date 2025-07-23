@@ -1098,7 +1098,11 @@ unsigned char *lpDeleteRange(unsigned char *lp, long index, unsigned long num) {
     if (numele != LP_HDR_NUMELE_UNKNOWN && (numele - (unsigned long)index) <= num) {
         p[0] = LP_EOF;
         lpSetTotalBytes(lp, p - lp + 1);
-        lpSetNumElements(lp, index);
+        if (index >= 0 && index <= UINT32_MAX) {
+            lpSetNumElements(lp, (uint32_t)index);
+        } else {
+            lpSetNumElements(lp, LP_HDR_NUMELE_UNKNOWN);
+        }
         lp = lpShrinkToFit(lp);
     } else {
         lp = lpDeleteRangeWithEntry(lp, &p, num);
@@ -1106,6 +1110,7 @@ unsigned char *lpDeleteRange(unsigned char *lp, long index, unsigned long num) {
 
     return lp;
 }
+
 
 /* Merge listpacks 'first' and 'second' by appending 'second' to 'first'.
  *

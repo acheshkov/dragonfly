@@ -299,7 +299,7 @@ static inline void lpEncodeIntegerGetType(int64_t v, unsigned char *intenc, uint
         *enclen = 5;
     } else {
         /* 64 bit integer. */
-        uint64_t uv = v;
+        int64_t uv = v;
         intenc[0] = LP_ENCODING_64BIT_INT;
         intenc[1] = uv&0xff;
         intenc[2] = (uv>>8)&0xff;
@@ -312,6 +312,7 @@ static inline void lpEncodeIntegerGetType(int64_t v, unsigned char *intenc, uint
         *enclen = 9;
     }
 }
+
 
 /* Given an element 'ele' of size 'size', determine if the element can be
  * represented inside the listpack encoded as integer, and returns

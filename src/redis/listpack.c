@@ -589,7 +589,6 @@ unsigned long lpLength(unsigned char *lp) {
  *
  * Similarly, there is no error returned since the listpack normally can be
  * assumed to be valid, so that would be a very high API cost. */
-static inline unsigned char *
 lpGetWithSize(unsigned char *p, int64_t *count, unsigned char *intbuf, uint64_t *entry_size) {
     int64_t val;
     uint64_t uval, negstart, negmax;
@@ -650,23 +649,24 @@ lpGetWithSize(unsigned char *p, int64_t *count, unsigned char *intbuf, uint64_t 
     if (uval >= negstart) {
         /* This three steps conversion should avoid undefined behaviors
          * in the unsigned -> signed conversion. */
-        uval = negmax-uval;
-        val = uval;
-        val = -val-1;
+        uval = negmax - uval;
+        val = (int64_t)uval;
+        val = -val - 1;
     } else {
-        val = uval;
+        val = (int64_t)uval;
     }
 
     /* Return the string representation of the integer or the value itself
      * depending on intbuf being NULL or not. */
     if (intbuf) {
-        *count = ll2string((char*)intbuf,LP_INTBUF_SIZE,(long long)val);
+        *count = ll2string((char*)intbuf, LP_INTBUF_SIZE, (long long)val);
         return intbuf;
     } else {
         *count = val;
         return NULL;
     }
 }
+
 
 int lpGetInteger(unsigned char *p, int64_t *ival) {
     int64_t val;

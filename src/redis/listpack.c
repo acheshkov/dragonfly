@@ -1427,7 +1427,8 @@ void lpRandomPairs(unsigned char *lp, unsigned int count, listpackEntry *keys, l
 
     /* create a pool of random indexes (some may be duplicate). */
     for (unsigned int i = 0; i < count; i++) {
-        picks[i].index = (rand() % total_size) * 2; /* Generate even indexes */
+        unsigned int r = (unsigned int)rand();
+        picks[i].index = (r % total_size) * 2; /* Generate even indexes */
         /* keep track of the order we picked them */
         picks[i].order = i;
     }
@@ -1436,7 +1437,8 @@ void lpRandomPairs(unsigned char *lp, unsigned int count, listpackEntry *keys, l
     qsort(picks, count, sizeof(rand_pick), uintCompare);
 
     /* fetch the elements form the listpack into a output array respecting the original order. */
-    unsigned int lpindex = picks[0].index, pickindex = 0;
+    unsigned int lpindex = picks[0].index;
+    unsigned int pickindex = 0;
     p = lpSeek(lp, lpindex);
     while (p && pickindex < count) {
         key = lpGetValue(p, &klen, &klval);
@@ -1447,7 +1449,7 @@ void lpRandomPairs(unsigned char *lp, unsigned int count, listpackEntry *keys, l
             int storeorder = picks[pickindex].order;
             lpSaveValue(key, klen, klval, &keys[storeorder]);
             if (vals) lpSaveValue(value, vlen, vlval, &vals[storeorder]);
-             pickindex++;
+            pickindex++;
         }
         lpindex += 2;
         p = lpNext(lp, p);
@@ -1455,6 +1457,7 @@ void lpRandomPairs(unsigned char *lp, unsigned int count, listpackEntry *keys, l
 
     zfree(picks);
 }
+
 
 /* Randomly select count of key value pairs and store into 'keys' and
  * 'vals' args. The selections are unique (no repetitions), and the order of
